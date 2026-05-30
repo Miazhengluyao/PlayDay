@@ -1,24 +1,26 @@
 'use client';
 import { useState } from 'react';
-import data from '../data/data.json';
-import parks from '../data/parks.json';
+import data from '../public/data.json';
+import parks from '../public/parks.json';
 
 export default function Home() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [activeMood, setActiveMood] = useState<string | null>(null);
 
   const moods = Object.keys(data.mood_criteria);
+  
+  // 🧘‍♀️ Mindful & Vibey English Labels
   const moodLabels: { [key: string]: string } = {
-    sensory_exploration: "✨ 触感小探险",
-    get_the_wiggles_out: "🔋 疯狂放电模式",
-    ada_accessible: "♿️ 无障碍乐园",
-    active_sports_play: "⚽️ 球场运动风",
-    nature_calm_reset: "🍃 静心森呼吸",
-    stroller_friendly: "🚼 推车友好派",
-    bike_ride_toddler: "🚲 骑行小能手",
-    water_play: "💦 戏水清凉季",
-    picnic_and_chill: "🧺 野餐躺平局",
-    first_easy_outing: "🐣 新手友好路"
+    sensory_exploration: "✨ Sensory Flow",
+    get_the_wiggles_out: "⚡️ High Energy Release",
+    ada_accessible: "♿️ Inclusive Spaces",
+    active_sports_play: "🎾 Active Motion",
+    nature_calm_reset: "🍃 Grounding Nature",
+    stroller_friendly: "🛹 Smooth Paths",
+    bike_ride_toddler: "🚲 Little Wheels",
+    water_play: "🌊 Water Reset",
+    picnic_and_chill: "🧺 Slow Mornings",
+    first_easy_outing: "🌱 Gentle Outings"
   };
 
   const handleMoodSelect = (moodCode: string) => {
@@ -37,35 +39,73 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-50 p-6 md:p-12 font-sans text-zinc-900">
+    <main className="min-h-screen bg-stone-50 p-6 md:p-12 font-sans text-stone-900">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-extrabold mb-8 tracking-tight">Topeka 公园智库</h1>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+        {/* Header Section */}
+        <header className="mb-12 text-center md:text-left mt-8">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tighter text-stone-800">
+            PlayDay
+          </h1>
+          <p className="text-stone-500 font-medium tracking-wide">
+            Find the perfect Topeka park for your current vibe.
+          </p>
+        </header>
+        
+        {/* Mood Selection Buttons */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-16">
           {moods.map((m) => (
             <button 
               key={m} 
               onClick={() => handleMoodSelect(m)} 
-              className={`p-4 rounded-2xl border-2 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
-                activeMood === m ? "bg-black text-white border-black" : "bg-white border-zinc-200 hover:border-black"
+              className={`p-4 rounded-3xl border transition-all duration-500 ease-out transform hover:-translate-y-1 ${
+                activeMood === m 
+                  ? "bg-stone-800 text-stone-50 border-stone-800 shadow-lg scale-105" 
+                  : "bg-white border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-100 hover:shadow-sm"
               }`}
             >
-              <span className="font-medium">{moodLabels[m]}</span>
+              <span className="font-medium text-sm md:text-base tracking-wide">{moodLabels[m]}</span>
             </button>
           ))}
         </div>
         
-        <div className="space-y-6">
+        {/* Empty State */}
+        {recommendations.length === 0 && activeMood && (
+          <div className="text-center p-12 text-stone-400 animate-pulse">
+            <p className="tracking-wide">Scanning for the perfect spot...</p>
+          </div>
+        )}
+
+        {/* Results Section */}
+        <div className="space-y-5">
           {recommendations.map((p) => (
-            <div key={p.id} className="group p-6 bg-white rounded-3xl border border-zinc-100 shadow-sm transition-all hover:shadow-md hover:border-zinc-300">
-              <div className="flex justify-between items-start">
+            <div key={p.id} className="group p-6 md:p-8 bg-white rounded-[2rem] border border-stone-100 shadow-sm transition-all duration-500 hover:shadow-xl hover:border-stone-200">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold group-hover:text-blue-600 transition-colors">{p.name}</h2>
-                  <p className="text-sm text-zinc-500 mt-1">推荐契合度评分: {p.score * 12.5}%</p>
+                  <h2 className="text-2xl font-bold text-stone-800 group-hover:text-stone-500 transition-colors duration-300">
+                    {p.name}
+                  </h2>
+                  
+                  {/* Visual Vibe Match Indicator */}
+                  <div className="flex items-center gap-3 mt-3">
+                    <div className="h-1.5 w-16 bg-stone-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-stone-800 rounded-full transition-all duration-1000 ease-out" 
+                        style={{ width: `${Math.min((p.score * 25) + 25, 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-stone-400 font-semibold uppercase tracking-widest">
+                      Vibe Match: {p.score * 12.5}%
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-zinc-100 px-3 py-1 rounded-full text-xs font-bold text-zinc-600 uppercase">
-                  {p.tags[0].replace('tier_', '')}
-                </div>
+                
+                {/* Park Tags */}
+                {p.tags && p.tags[0] && (
+                  <div className="bg-stone-50 px-4 py-2 rounded-full text-[10px] font-bold text-stone-500 uppercase tracking-widest border border-stone-200/60">
+                    {p.tags[0].replace('tier_', '')}
+                  </div>
+                )}
               </div>
             </div>
           ))}
